@@ -41,6 +41,23 @@ Expected output includes `web_fetch parameters: url, method, headers, body` and 
 
 The profile launches through `dsh --profile external-web-fetch`. Model access still requires your existing DSH provider configuration and credentials; this repository supplies neither. Do not put credentials in a Git commit.
 
+## Web profile preflight
+
+`profile/prepare-web-profile.mjs` prepares backups and four ordered candidate patches for an existing Web profile. It does not apply them, reload the instance, or change presets, dependencies, or bundles. The candidates keep the host web service and replace only its global tool and HTTP provider. Both registries reject duplicate registrations: an operator must verify each old registration has finished unloading before enabling its replacement. Applying the final candidate directly through concurrent HMR is not verified safe.
+
+```sh
+node profile/prepare-web-profile.mjs \
+  --profile-dir "$HOME/.dsh/profiles/web" \
+  --output /tmp/external-web-fetch-plan
+TSX_TSCONFIG_PATH="$DSH_HOST_TREE/tsconfig.json" \
+  node --import "$DSH_HOST_TREE/node_modules/tsx/dist/esm/index.mjs" \
+  profile/verify-web-integration.mjs
+```
+
+The output directory must not exist. The probe checks ordered replacement against the installed host's service and tool registry, executes a scoped POST with a header and body against loopback, and verifies the four-field schema. It also verifies a limitation: a preset-local release `web_fetch` shadows the global replacement. Presets configured with `fetch: false` can inherit it; presets configured with `fetch: true` retain their own tool. This is isolated integration evidence, not a claim that a running Web instance has been modified.
+
+Before applying a candidate, compare the live patch and manifest against the backup hashes in `plan.json`, inspect the final configuration after all overlays, and establish an authenticated way to read live plugin and session-tool status. Do not bypass authentication or assume that a successful file write proves HMR succeeded. A service restart requires operator approval.
+
 ## Tool arguments
 
 | Field | Meaning |

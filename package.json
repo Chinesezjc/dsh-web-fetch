@@ -11,7 +11,8 @@
     "build": "tsc -b",
     "smoke": "node packages/tool-web/scripts/load-smoke.mjs",
     "profile:install": "node profile/install-headless.mjs",
-    "test": "node --test profile/install-headless.test.mjs",
+    "profile:prepare-web": "node profile/prepare-web-profile.mjs",
+    "test": "node --test profile/install-headless.test.mjs profile/prepare-web-profile.test.mjs",
     "verify": "pnpm run build && pnpm run smoke && pnpm test"
   },
   "devDependencies": {
