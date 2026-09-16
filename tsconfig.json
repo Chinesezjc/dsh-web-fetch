@@ -1,0 +1,8 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/web" },
+    { "path": "packages/web-fetch-http" },
+    { "path": "packages/tool-web" }
+  ]
+}

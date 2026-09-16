@@ -1,0 +1,64 @@
+# DSH external web fetch
+
+Use `web_fetch` with an HTTP method, caller headers, and a serialized body without waiting for upstream PR #2294. The plugin registers `web_search` alongside it.
+
+This private repository is a source checkout installation for a DSH source-tree host. It is not an npm release or a `dsh plugin add` bundle. A registry-only host has not been verified. The copied packages retain their upstream names and stay private.
+
+## Install
+
+Requirements: Node `^22.19.0 || >=24.0.0`, pnpm 11, and an installed DSH source tree with its dependencies. On the author's macOS machine, prepend `/opt/homebrew/opt/node@22/bin:/opt/homebrew/bin` to `PATH`.
+
+```sh
+git clone git@github.com:Chinesezjc/dsh-web-fetch.git
+cd dsh-web-fetch
+pnpm install --frozen-lockfile
+pnpm run verify
+node profile/install-headless.mjs --dry-run
+node profile/install-headless.mjs --profile external-web-fetch
+```
+
+The installer creates `$DSH_HOME/profiles/external-web-fetch`, or `~/.dsh/profiles/external-web-fetch` when `DSH_HOME` is unset. It derives absolute plugin paths from this checkout. Keep the checkout and its built `lib/` files in place.
+
+The profile uses the host's base and headless bundles. It disables the release `web`, `web-fetch-http`, and `tool-web` rows and inserts this repository's built plugins. It leaves the search provider enabled.
+
+The installer rejects `web`, `headless`, invalid names, and every existing destination profile, including a symlink. It does not copy credentials, modify global settings, or overwrite an earlier installation. Use `--home /path/to/scratch-home` to install in a scratch home. Choose a new profile name when testing a different checkout.
+
+## Verify the installed profile
+
+`pnpm run verify` builds the packages, runs a loopback HTTP smoke through the tool registry, and tests the installer. The smoke replaces address resolution only inside its process because production fetches reject non-public destinations. It checks method, headers, body, schema, and argument rejection; it is not a real-model round.
+
+To verify the generated profile using the installed host's own parser and Cordis modules, set these paths for your machine:
+
+```sh
+export DSH_HOST_TREE="$HOME/.dsh/source/current"
+export DSH_SELFUSE_PATCH="$HOME/.dsh/profiles/external-web-fetch/cordis.patch.yml"
+TSX_TSCONFIG_PATH="$DSH_HOST_TREE/tsconfig.json" \
+  node --import "$DSH_HOST_TREE/node_modules/tsx/dist/esm/index.mjs" \
+  profile/verify-profile-schema.mjs
+```
+
+Expected output includes `web_fetch parameters: url, method, headers, body` and `registered web tools: web_search, web_fetch`. The probe fails if release rows remain enabled, paths point outside this checkout, or the tool schema differs.
+
+The profile launches through `dsh --profile external-web-fetch`. Model access still requires your existing DSH provider configuration and credentials; this repository supplies neither. Do not put credentials in a Git commit.
+
+## Tool arguments
+
+| Field | Meaning |
+| --- | --- |
+| `url` | Required public HTTP(S) URL. |
+| `method` | GET (default), POST, PUT, PATCH, DELETE, or HEAD. |
+| `headers` | Header name/value strings; transport-managed header names are rejected. |
+| `body` | Serialized text; rejected with GET and HEAD. Set a matching Content-Type header. |
+
+Use a non-secret test header when checking an echo endpoint. The provider refuses credential-bearing redirects. See the implementation in `packages/web-fetch-http/src/policy.ts` and `provider.ts` for request policy.
+
+## Scope and compatibility
+
+- Verified integration target: source-tree host commit `6c59d4da55067a698e6ddda8376a9eb649ee9e43`. The host must supply the same Cordis and DSH service instances used by the loaded plugins. Module resolution under an unrelated npm-only host is not established.
+- The installer is headless-only. This repository does not replace browser tool cards or ship GUI presets. The author's separate GUI self-use profile needs regeneration after host updates and is not part of this installation.
+- The source uses pinned DSH `0.1.5-rc.2` dependencies. Rerun verification after updating the host; passing on one host version is not a compatibility promise for every later version.
+- This repository contains no credentials, copied user settings, raw model transcripts, or GUI captures from the self-use repository. Historical evidence remains local. See [PROVENANCE.md](PROVENANCE.md).
+
+## Development
+
+The three workspaces are the `ctx.web` service (`packages/web`), HTTP provider (`packages/web-fetch-http`), and model-facing tool (`packages/tool-web`). `profile/install-headless.test.mjs` checks installation, protected paths, overwrite refusal, symlink refusal, and dry-run. The schema probe uses the actual generated patch rather than a second fixture.

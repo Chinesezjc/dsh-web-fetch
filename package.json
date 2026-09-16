@@ -1,0 +1,20 @@
+{
+  "name": "dsh-web-fetch-external",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.7.0",
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "smoke": "node packages/tool-web/scripts/load-smoke.mjs",
+    "profile:install": "node profile/install-headless.mjs",
+    "test": "node --test profile/install-headless.test.mjs",
+    "verify": "pnpm run build && pnpm run smoke && pnpm test"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.0",
+    "typescript": "^6.0.3"
+  }
+}
