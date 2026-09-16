@@ -56,6 +56,8 @@ TSX_TSCONFIG_PATH="$DSH_HOST_TREE/tsconfig.json" \
 
 The output directory must not exist. The probe checks ordered replacement against the installed host's service and tool registry, executes a scoped POST with a header and body against loopback, and verifies the four-field schema. It also verifies a limitation: a preset-local release `web_fetch` shadows the global replacement. Presets configured with `fetch: false` can inherit it; presets configured with `fetch: true` retain their own tool. This is isolated integration evidence, not a claim that a running Web instance has been modified.
 
+For a session using the shipped `standard` preset, `node profile/generate-web-preset.mjs --output /tmp/external-web-fetch-presets/external-web-fetch-standard` generates a separate opt-in copy with the external tool module. It preserves the shipped preset and rejects missing or duplicate tool rows and existing output directories. Register the generated directory's parent as an additional preset root in the Web profile, then select `external-web-fetch-standard` through the normal session preset control. Generating files alone neither registers nor selects this preset. Keep the external HTTP provider enabled in the host profile. Run `profile/verify-web-preset.mjs --root /tmp/external-web-fetch-presets` through the same host tsx command shown above to check package presence against the profile's actual resolution table. This check is not a full agent startup or a live session selection.
+
 Before applying a candidate, compare the live patch and manifest against the backup hashes in `plan.json`, inspect the final configuration after all overlays, and establish an authenticated way to read live plugin and session-tool status. Do not bypass authentication or assume that a successful file write proves HMR succeeded. A service restart requires operator approval.
 
 ## Tool arguments
@@ -72,7 +74,7 @@ Use a non-secret test header when checking an echo endpoint. The provider refuse
 ## Scope and compatibility
 
 - Verified integration target: source-tree host commit `6c59d4da55067a698e6ddda8376a9eb649ee9e43`. The host must supply the same Cordis and DSH service instances used by the loaded plugins. Module resolution under an unrelated npm-only host is not established.
-- The installer is headless-only. This repository does not replace browser tool cards or ship GUI presets. The author's separate GUI self-use profile needs regeneration after host updates and is not part of this installation.
+- The automatic installer is headless-only. Web preflight can generate a separate opt-in preset but does not install or select it in a running session. Browser tool cards are unchanged. Regenerate the opt-in preset after host updates; the author's older GUI self-use profile is separate from this installation.
 - The source uses pinned DSH `0.1.5-rc.2` dependencies. Rerun verification after updating the host; passing on one host version is not a compatibility promise for every later version.
 - This repository contains no credentials, copied user settings, raw model transcripts, or GUI captures from the self-use repository. Historical evidence remains local. See [PROVENANCE.md](PROVENANCE.md).
 

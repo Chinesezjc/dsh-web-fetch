@@ -29,13 +29,13 @@ const originalResolve = publicHttpNetwork.resolve
 publicHttpNetwork.resolve = async () => [{ address: '127.0.0.1', family: 4 }]
 const fibers = []
 
-async function scopedTools(id, config) {
+async function scopedTools(id, config, plugin = HostTools) {
   const key = { id }
   let scope
   fibers.push(await ctx.plugin(Object.assign(inner => { scope = createScope(inner, key) }, {
     inject: ['tools', 'systemPrompt', 'web'],
   })))
-  await scope.ctx.plugin(HostTools, config)
+  await scope.ctx.plugin(plugin, config)
   return { key, scope }
 }
 function fields(key) {
@@ -79,7 +79,9 @@ try {
 
   const shadowing = await scopedTools('external-web-fetch-shadowed', { fetch: true, search: true })
   assert.deepEqual(fields(shadowing.key), ['url'], 'a preset-local release tool must still shadow the global tool')
-  console.log('verify-web-integration: PASS — host service forwards POST/header/body; inherited scope exposes four fields; preset-local fetch shadows it')
+  const externalPreset = await scopedTools('external-web-fetch-standard', { fetch: true, search: true }, ExternalTools)
+  assert.deepEqual(fields(externalPreset.key), ['url', 'method', 'headers', 'body'])
+  console.log('verify-web-integration: PASS — host service forwards POST/header/body; inherited and external preset scopes expose four fields; release preset-local fetch shadows the global tool')
 } finally {
   publicHttpNetwork.resolve = originalResolve
   for (const fiber of fibers.reverse()) await fiber.dispose()
