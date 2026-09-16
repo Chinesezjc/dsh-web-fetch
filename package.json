@@ -1,6 +1,7 @@
 {
   "name": "dsh-web-fetch-external",
   "private": true,
+  "license": "MIT",
   "type": "module",
   "packageManager": "pnpm@11.7.0",
   "engines": {

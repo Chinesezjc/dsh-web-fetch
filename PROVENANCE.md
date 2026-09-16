@@ -6,4 +6,4 @@ The web capability implementation originated in [deepseek-harness/deepseek-harne
 
 Earlier self-use evidence records a real-model POST to `https://httpbin.org/post`, returning HTTP 200 and echoing the test Authorization header and serialized JSON body. Those transcripts and GUI screenshots are not exported. Current automated tests are loopback transport and profile-composition checks, not substitutes for a new real-model round.
 
-Before making this repository public or publishing packages, review upstream licensing, package names, dependency compatibility, and the installation path for registry-only hosts. The packages are private and this repository is distributed privately for self-use.
+The source commit's [MIT license](https://github.com/deepseek-harness/deepseek-harness/blob/74c99cf165a9e95fcaa677f5462f3f648be3c74b/LICENSE) permits redistribution with its copyright and permission notice. This repository includes that notice in [LICENSE](LICENSE). Dependency compatibility and installation on registry-only hosts remain unverified. All workspace packages stay `private: true`; public source availability does not publish packages under upstream's npm names.

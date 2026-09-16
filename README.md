@@ -2,14 +2,14 @@
 
 Use `web_fetch` with an HTTP method, caller headers, and a serialized body without waiting for upstream PR #2294. The plugin registers `web_search` alongside it.
 
-This private repository is a source checkout installation for a DSH source-tree host. It is not an npm release or a `dsh plugin add` bundle. A registry-only host has not been verified. The copied packages retain their upstream names and stay private.
+This repository provides a source checkout installation for a DSH source-tree host. It is not an npm release or a `dsh plugin add` bundle. A registry-only host has not been verified. The copied packages retain their upstream names and stay private.
 
 ## Install
 
 Requirements: Node `^22.19.0 || >=24.0.0`, pnpm 11, and an installed DSH source tree with its dependencies. On the author's macOS machine, prepend `/opt/homebrew/opt/node@22/bin:/opt/homebrew/bin` to `PATH`.
 
 ```sh
-git clone git@github.com:Chinesezjc/dsh-web-fetch.git
+git clone https://github.com/Chinesezjc/dsh-web-fetch.git
 cd dsh-web-fetch
 pnpm install --frozen-lockfile
 pnpm run verify
